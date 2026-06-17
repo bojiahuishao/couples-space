@@ -4,79 +4,256 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>❤️ 我们的空间</title>
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ===== 变量 ===== */
+    :root { --primary:#ff6b9d; --primary-light:#ff8fb3; --primary-dark:#e0557f; --bg:#fff5f7; --card:#ffffff; --text:#4a4a4a; --text-light:#888; --shadow:0 4px 20px rgba(255,107,157,0.12); --shadow-hover:0 8px 30px rgba(255,107,157,0.2); --radius:16px; }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+    .container { max-width:1000px; margin:0 auto; padding:1.5rem; position:relative; z-index:1; }
+    h1 { font-size:2rem; text-align:center; }
+    .subtitle { text-align:center; color:var(--text-light); margin-top:0.3rem; }
+
+    /* 飘落心形 */
+    .hearts { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+    .heart { position:absolute; top:-50px; animation:fall linear infinite; opacity:0.6; }
+    @keyframes fall { 0%{transform:translateY(-50px) rotate(0deg);opacity:0.8;} 50%{opacity:0.4;} 100%{transform:translateY(105vh) rotate(360deg);opacity:0;} }
+
+    /* 卡片 */
+    .card { background:var(--card); border-radius:var(--radius); padding:2rem; margin-bottom:1.5rem; box-shadow:var(--shadow); transition:transform 0.3s, box-shadow 0.3s; }
+    .card:hover { transform:translateY(-2px); box-shadow:var(--shadow-hover); }
+    .section-title { text-align:center; margin:2rem 0 1rem; display:flex; align-items:center; justify-content:center; gap:0.8rem; font-size:1.3rem; }
+    .section-title::before,.section-title::after { content:''; height:2px; width:40px; background:linear-gradient(90deg,transparent,var(--primary-light)); }
+    .section-title::after { background:linear-gradient(90deg,var(--primary-light),transparent); }
+
+    /* 计时 */
+    .counter-section { text-align:center; padding:2rem; }
+    .counter-days { font-size:3.5rem; font-weight:800; background:linear-gradient(135deg,var(--primary),var(--primary-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2; }
+    .counter-label { font-size:1.1rem; color:var(--text-light); margin-top:0.3rem; }
+    .ann-list { display:flex; flex-wrap:wrap; gap:0.8rem; justify-content:center; margin-top:1rem; }
+    .ann-tag { background:#fff0f3; padding:0.5rem 1.2rem; border-radius:50px; font-size:0.9rem; font-weight:600; color:var(--primary-dark); }
+
+    /* 照片滚动 */
+    .photo-wrapper { overflow:hidden; border-radius:var(--radius); margin:1rem 0; }
+    .photo-track { display:flex; gap:1rem; padding:1rem 0; }
+    .photo-track.paused { animation-play-state:paused; }
+    .photo-item { flex-shrink:0; width:260px; height:330px; border-radius:var(--radius); overflow:hidden; cursor:pointer; box-shadow:var(--shadow); transition:transform 0.3s, box-shadow 0.3s; }
+    .photo-item:hover { transform:scale(1.03); box-shadow:var(--shadow-hover); }
+    .photo-item img { width:100%; height:100%; object-fit:cover; }
+    @keyframes scrollPhotos { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+
+    /* 灯箱 */
+    .lightbox { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; cursor:pointer; }
+    .lightbox.active { display:flex; }
+    .lightbox img { max-width:90%; max-height:90vh; border-radius:var(--radius); object-fit:contain; }
+    .lightbox-close { position:absolute; top:20px; right:30px; font-size:3rem; color:white; cursor:pointer; z-index:1001; transition:transform 0.3s; }
+    .lightbox-close:hover { transform:scale(1.2); color:var(--primary); }
+
+    /* 留言 */
+    .msg-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1rem; }
+    .msg-card { background:var(--card); border-radius:var(--radius); padding:1.5rem; box-shadow:var(--shadow); border-left:4px solid var(--primary); transition:transform 0.3s; }
+    .msg-card:hover { transform:translateY(-3px); }
+    .msg-card .author { font-weight:700; font-size:0.9rem; margin-bottom:0.3rem; display:flex; align-items:center; gap:0.5rem; }
+    .msg-card .dot { width:10px; height:10px; border-radius:50%; }
+    .msg-card .date { font-size:0.8rem; color:var(--text-light); }
+    .msg-card .txt { margin-top:0.5rem; line-height:1.7; word-break:break-word; }
+
+    /* 音乐 */
+    .music-player { display:flex; align-items:center; gap:1rem; padding:1rem 1.5rem; background:var(--card); border-radius:50px; box-shadow:var(--shadow); max-width:400px; margin:1rem auto; }
+    .music-player .btn-play { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:white; border:none; font-size:1.2rem; cursor:pointer; flex-shrink:0; }
+    .music-player .btn-play:hover { transform:scale(1.1); }
+    .music-player .info { flex:1; min-width:0; }
+    .music-player .song { font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .music-player .hint { font-size:0.75rem; color:var(--text-light); }
+
+    .empty { text-align:center; color:#aaa; padding:2rem; }
+    .empty .icon { font-size:2.5rem; display:block; margin-bottom:0.5rem; }
+    .nav-link { position:fixed; top:20px; right:20px; z-index:100; font-size:0.85rem; padding:0.5rem 1rem; background:rgba(255,255,255,0.85); border-radius:50px; color:var(--text-light); text-decoration:none; box-shadow:0 2px 10px rgba(0,0,0,0.08); }
+    .nav-link:hover { color:var(--primary); }
+    .toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:0.7rem 1.5rem; border-radius:50px; font-size:0.9rem; z-index:2000; opacity:0; transition:opacity 0.3s; pointer-events:none; }
+    .toast.show { opacity:1; }
+
+    @media(max-width:768px) { .counter-days{font-size:2.5rem;} .photo-item{width:200px;height:260px;} .msg-grid{grid-template-columns:1fr;} }
+    ::-webkit-scrollbar { width:6px; height:6px; } ::-webkit-scrollbar-thumb { background:var(--primary-light); border-radius:3px; }
+  </style>
 </head>
 <body>
 
-  <!-- 飘落心形背景 -->
-  <div class="hearts-container" id="heartsContainer"></div>
+<div class="hearts" id="heartsContainer"></div>
+<a href="admin.html" class="nav-link">⚙️ 管理</a>
 
-  <!-- 跳转管理页 -->
-  <a href="admin.html" class="nav-link" title="管理空间">⚙️ 管理</a>
+<div class="container">
 
-  <!-- 主容器 -->
-  <div class="container">
+  <!-- 标题 -->
+  <header style="text-align:center;padding:2rem 0 1rem;">
+    <h1 id="siteTitle">❤️ 我们的空间</h1>
+    <p class="subtitle" id="siteSubtitle">记录属于我们的每一个瞬间</p>
+  </header>
 
-    <!-- 标题区 -->
-    <header class="header" id="headerSection">
-      <h1 id="siteTitle">❤️ 我们的空间</h1>
-      <p class="subtitle" id="siteSubtitle">记录属于我们的每一个瞬间</p>
-    </header>
+  <!-- 计时 -->
+  <section class="card counter-section">
+    <div class="counter-days" id="daysCount">--</div>
+    <div class="counter-label">我们已经在一起</div>
+    <div class="ann-list" id="anniversariesList"><span class="empty">还没有添加纪念日哦~</span></div>
+  </section>
 
-    <!-- 计时区 -->
-    <section class="counter-section card" id="counterSection">
-      <div class="counter-days" id="daysCount">--</div>
-      <div class="counter-label">我们已经在一起</div>
-      <div class="anniversaries-list" id="anniversariesList">
-        <span class="empty-state">还没有添加纪念日哦~</span>
+  <!-- 照片 -->
+  <section>
+    <div class="section-title">📸 我们的瞬间</div>
+    <div class="photo-wrapper" id="photoScrollWrapper">
+      <div class="photo-track" id="photoTrack">
+        <div class="empty" style="min-width:100%;padding:4rem;"><span class="icon">📷</span>还没有照片，去管理页添加吧~</div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 照片滚动区 -->
-    <section>
-      <h2 class="section-title">📸 我们的瞬间</h2>
-      <div class="photo-scroll-wrapper" id="photoScrollWrapper">
-        <div class="photo-scroll-track" id="photoTrack">
-          <div class="empty-state" style="padding: 4rem;">
-            <span class="icon">📷</span>
-            还没有照片，去管理页面添加吧~
-          </div>
-        </div>
+  <!-- 留言 -->
+  <section>
+    <div class="section-title">💌 留言板</div>
+    <div class="msg-grid" id="messagesGrid">
+      <div class="empty"><span class="icon">💬</span>还没有留言，去管理页写第一条吧~</div>
+    </div>
+  </section>
+
+  <!-- 音乐 -->
+  <section>
+    <div class="section-title">🎵 背景音乐</div>
+    <div class="music-player" id="musicPlayer">
+      <button class="btn-play" id="btnPlay" title="播放/暂停">▶️</button>
+      <div class="info">
+        <div class="song" id="songName">未设置音乐</div>
+        <div class="hint">在管理页设置音乐文件</div>
       </div>
-    </section>
+    </div>
+    <audio id="bgMusic" loop style="display:none;"></audio>
+  </section>
 
-    <!-- 留言板 -->
-    <section>
-      <h2 class="section-title">💌 留言板</h2>
-      <div class="messages-grid" id="messagesGrid">
-        <div class="empty-state">
-          <span class="icon">💬</span>
-          还没有留言，去管理页面写第一条吧~
-        </div>
-      </div>
-    </section>
+</div>
 
-    <!-- 音乐播放器 -->
-    <section>
-      <h2 class="section-title">🎵 背景音乐</h2>
-      <div class="music-player" id="musicPlayer">
-        <button class="btn-play" id="btnPlay" title="播放/暂停">▶️</button>
-        <div class="song-info">
-          <div class="song-name" id="songName">未设置音乐</div>
-          <div class="song-hint">去管理页面上传音乐文件到 music 文件夹</div>
-        </div>
-      </div>
-      <audio id="bgMusic" loop style="display:none;"></audio>
-    </section>
+<!-- 灯箱 -->
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-close" id="lightboxClose">&times;</span>
+  <img id="lightboxImg" src="" alt="照片">
+</div>
 
-  </div>
+<div class="toast" id="toast"></div>
 
-  <!-- 灯箱 -->
-  <div class="lightbox" id="lightbox">
-    <span class="lightbox-close" id="lightboxClose">&times;</span>
-    <img id="lightboxImg" src="" alt="照片">
-  </div>
+<script>
+// ===== 配置 =====
+const D = {
+  title:'❤️ 我们的空间',subtitle:'记录属于我们的每一个瞬间',themeColor:'#ff6b9d',
+  musicFile:'',startDate:'',photos:[],messages:[],anniversaries:[]
+};
+let C = {};
 
-  <script src="js/main.js"></script>
+function init() {
+  try { C = Object.assign({}, D, JSON.parse(localStorage.getItem('couples-space-config')||'{}')); }
+  catch(e) { C = Object.assign({}, D); }
+  C.photos=C.photos||[]; C.messages=C.messages||[]; C.anniversaries=C.anniversaries||[];
+
+  applyTheme();
+  renderAll();
+  initHearts();
+  initMusic();
+  initLightbox();
+}
+
+function applyTheme() {
+  const c = C.themeColor||'#ff6b9d';
+  document.documentElement.style.setProperty('--primary',c);
+  // 简单变体
+  const num = parseInt(c.replace('#',''),16);
+  const r=Math.min(255,(num>>16)+40), g=Math.min(255,((num>>8)&0xFF)+40), b=Math.min(255,(num&0xFF)+40);
+  document.documentElement.style.setProperty('--primary-light','#'+(0x1000000+(r<<16)+(g<<8)+b).toString(16).slice(1));
+  const r2=Math.max(0,(num>>16)-40), g2=Math.max(0,((num>>8)&0xFF)-40), b2=Math.max(0,(num&0xFF)-40);
+  document.documentElement.style.setProperty('--primary-dark','#'+(0x1000000+(r2<<16)+(g2<<8)+b2).toString(16).slice(1));
+}
+
+function renderAll() {
+  // 标题
+  document.getElementById('siteTitle').textContent=C.title;
+  document.getElementById('siteSubtitle').textContent=C.subtitle;
+  document.title=C.title;
+
+  // 计时
+  if (C.startDate) {
+    const d=Math.floor((new Date()-new Date(C.startDate))/(86400000));
+    document.getElementById('daysCount').textContent=d>=0?d:'--';
+  }
+
+  // 纪念日
+  const annEl=document.getElementById('anniversariesList');
+  if (C.anniversaries.length>0) {
+    const td=new Date(); td.setHours(0,0,0,0); const n=td.getTime();
+    annEl.innerHTML=C.anniversaries.map(a=>{
+      const d=new Date(a.date); d.setFullYear(td.getFullYear());
+      if(d.getTime()<n) d.setFullYear(td.getFullYear()+1);
+      return `<span class="ann-tag">📌 ${e(a.name)}：还有 ${Math.ceil((d.getTime()-n)/86400000)} 天</span>`;
+    }).join('');
+  }
+
+  // 照片
+  const track=document.getElementById('photoTrack');
+  const ph=C.photos;
+  if (ph.length===0) {
+    track.innerHTML='<div class="empty" style="min-width:100%;padding:4rem;"><span class="icon">📷</span>还没有照片，去管理页添加吧~</div>';
+    track.style.animation='none';
+  } else {
+    const mk = ph.map((p,i)=>`<div class="photo-item" onclick="openLightbox('${ea(p)}')"><img src="${ea(p.startsWith('data:')?p:'photos/'+p)}" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>`).join('');
+    if (ph.length===1) { track.innerHTML=mk; track.style.animation='none'; }
+    else {
+      let items=''; const reps=Math.max(2,Math.ceil(8/ph.length));
+      for(let i=0;i<reps;i++) items+=mk;
+      track.innerHTML=items;
+      track.style.animation=`scrollPhotos ${Math.max(ph.length*3,12)}s linear infinite`;
+    }
+    document.getElementById('photoScrollWrapper').onmouseenter=()=>track.classList.add('paused');
+    document.getElementById('photoScrollWrapper').onmouseleave=()=>track.classList.remove('paused');
+  }
+
+  // 留言
+  const mg=document.getElementById('messagesGrid');
+  if (C.messages.length===0) { mg.innerHTML='<div class="empty"><span class="icon">💬</span>还没有留言</div>'; }
+  else { mg.innerHTML=C.messages.map(m=>`<div class="msg-card"><div class="author"><span class="dot" style="background:${ea(m.color||'#ff6b9d')};"></span>${e(m.author||'匿名')}</div><div class="date">${e(m.date||'')}</div><div class="txt">${e(m.text||'')}</div></div>`).join(''); }
+
+  // 音乐
+  document.getElementById('songName').textContent=C.musicFile||'未设置音乐';
+  if(C.musicFile) document.getElementById('bgMusic').src='music/'+C.musicFile;
+}
+
+// 心形
+function initHearts() {
+  const ct=document.getElementById('heartsContainer');
+  const h=['❤️','💕','💗','💖','💘','💝','💓','💞','🩷','💌'];
+  function mk(){const s=document.createElement('span');s.className='heart';s.textContent=h[Math.floor(Math.random()*h.length)];s.style.left=Math.random()*100+'%';s.style.fontSize=(Math.random()*20+16)+'px';s.style.animationDuration=(Math.random()*6+8)+'s';s.style.animationDelay=Math.random()*5+'s';ct.appendChild(s);const d=parseFloat(s.style.animationDuration)+parseFloat(s.style.animationDelay);setTimeout(()=>s.remove(),d*1000+500);}
+  for(let i=0;i<12;i++) setTimeout(mk,Math.random()*3000);
+  setInterval(mk,2000);
+}
+
+// 音乐
+function initMusic() {
+  const btn=document.getElementById('btnPlay'), a=document.getElementById('bgMusic');
+  btn.onclick=()=>{if(!a.src||a.src.endsWith('/music/')){showToast('请先在管理页设置音乐');return;}a.paused?a.play().then(()=>btn.textContent='⏸️').catch(()=>showToast('浏览器阻止了自动播放')):(a.pause(),btn.textContent='▶️');};
+  a.oncanplay=()=>a.play().then(()=>btn.textContent='⏸️').catch(()=>btn.textContent='▶️');
+}
+
+// 灯箱
+function initLightbox() {
+  const lb=document.getElementById('lightbox'), cl=document.getElementById('lightboxClose');
+  cl.onclick=e=>{e.stopPropagation();lb.classList.remove('active');};
+  lb.onclick=()=>lb.classList.remove('active');
+  document.onkeydown=e=>{if(e.key==='Escape') lb.classList.remove('active');};
+}
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src=src.startsWith('data:')?src:'photos/'+src;
+  document.getElementById('lightbox').classList.add('active');
+}
+
+// 工具
+function showToast(m) { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2500); }
+function e(s) { if(!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function ea(s) { if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
