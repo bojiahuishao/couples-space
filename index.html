@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>❤️ 我们的空间</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- 飘落心形背景 -->
+  <div class="hearts-container" id="heartsContainer"></div>
+
+  <!-- 跳转管理页 -->
+  <a href="admin.html" class="nav-link" title="管理空间">⚙️ 管理</a>
+
+  <!-- 主容器 -->
+  <div class="container">
+
+    <!-- 标题区 -->
+    <header class="header" id="headerSection">
+      <h1 id="siteTitle">❤️ 我们的空间</h1>
+      <p class="subtitle" id="siteSubtitle">记录属于我们的每一个瞬间</p>
+    </header>
+
+    <!-- 计时区 -->
+    <section class="counter-section card" id="counterSection">
+      <div class="counter-days" id="daysCount">--</div>
+      <div class="counter-label">我们已经在一起</div>
+      <div class="anniversaries-list" id="anniversariesList">
+        <span class="empty-state">还没有添加纪念日哦~</span>
+      </div>
+    </section>
+
+    <!-- 照片滚动区 -->
+    <section>
+      <h2 class="section-title">📸 我们的瞬间</h2>
+      <div class="photo-scroll-wrapper" id="photoScrollWrapper">
+        <div class="photo-scroll-track" id="photoTrack">
+          <div class="empty-state" style="padding: 4rem;">
+            <span class="icon">📷</span>
+            还没有照片，去管理页面添加吧~
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 留言板 -->
+    <section>
+      <h2 class="section-title">💌 留言板</h2>
+      <div class="messages-grid" id="messagesGrid">
+        <div class="empty-state">
+          <span class="icon">💬</span>
+          还没有留言，去管理页面写第一条吧~
+        </div>
+      </div>
+    </section>
+
+    <!-- 音乐播放器 -->
+    <section>
+      <h2 class="section-title">🎵 背景音乐</h2>
+      <div class="music-player" id="musicPlayer">
+        <button class="btn-play" id="btnPlay" title="播放/暂停">▶️</button>
+        <div class="song-info">
+          <div class="song-name" id="songName">未设置音乐</div>
+          <div class="song-hint">去管理页面上传音乐文件到 music 文件夹</div>
+        </div>
+      </div>
+      <audio id="bgMusic" loop style="display:none;"></audio>
+    </section>
+
+  </div>
+
+  <!-- 灯箱 -->
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close" id="lightboxClose">&times;</span>
+    <img id="lightboxImg" src="" alt="照片">
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

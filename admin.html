@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚙️ 空间管理</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .color-options {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .color-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    .color-dot:hover { transform: scale(1.15); }
+    .color-dot.selected { border-color: #333; box-shadow: 0 0 0 3px rgba(0,0,0,0.15); }
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-dark);
+      font-size: 0.9rem;
+    }
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .form-row > * { flex: 1; min-width: 150px; }
+    .preview-section {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .export-actions {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-header">
+    <h1>⚙️ 情侣空间管理</h1>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <a href="index.html" class="btn btn-secondary btn-sm">👁️ 预览空间</a>
+      <button class="btn btn-primary btn-sm" onclick="saveAndExport()">💾 保存配置</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 标签页 -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-photos">📸 照片管理</button>
+      <button class="tab-btn" data-tab="tab-messages">💬 留言管理</button>
+      <button class="tab-btn" data-tab="tab-dates">📅 纪念日</button>
+      <button class="tab-btn" data-tab="tab-settings">⚙️ 基本设置</button>
+    </div>
+
+    <!-- ===== 照片管理 ===== -->
+    <div class="tab-content active" id="tab-photos">
+      <div class="card">
+        <h3>📸 添加照片</h3>
+        <p style="color:var(--text-light);margin:0.5rem 0 1rem;">
+          <strong>方式一：</strong>直接把照片文件复制到 <code>photos</code> 文件夹，然后在这里输入文件名。<br>
+          <strong>方式二：</strong>点击下方区域选择照片文件上传。
+        </p>
+
+        <div class="upload-zone" id="uploadZone">
+          <span class="icon">📁</span>
+          <strong>点击这里选择照片</strong>
+          <p style="font-size:0.85rem;color:var(--text-light);">支持 JPG、PNG、GIF、WebP</p>
+        </div>
+        <input type="file" id="photoFileInput" accept="image/*" multiple style="display:none;">
+
+        <div class="form-group" style="margin-top:1rem;">
+          <label>或手动输入照片文件名（放在 photos 文件夹中）</label>
+          <div style="display:flex;gap:0.5rem;">
+            <input type="text" class="input" id="manualPhotoName" placeholder="例如：photo1.jpg">
+            <button class="btn btn-primary btn-sm" onclick="addPhotoManually()">➕ 添加</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📋 当前照片列表（<span id="photoCount">0</span> 张）</h3>
+        <div class="photo-admin-list" id="photoAdminList">
+          <div class="empty-state">
+            <span class="icon">📷</span>
+            还没有添加照片
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 留言管理 ===== -->
+    <div class="tab-content" id="tab-messages">
+      <div class="card">
+        <h3>✍️ 添加留言</h3>
+        <div class="form-group">
+          <label>发送者</label>
+          <input type="text" class="input" id="msgAuthor" placeholder="例如：小可爱 / 大笨蛋">
+        </div>
+        <div class="form-group">
+          <label>颜色标签</label>
+          <div class="color-options" id="msgColorOptions">
+            <span class="color-dot" style="background:#ff6b9d;" data-color="#ff6b9d"></span>
+            <span class="color-dot" style="background:#ffa502;" data-color="#ffa502"></span>
+            <span class="color-dot" style="background:#7bed9f;" data-color="#7bed9f"></span>
+            <span class="color-dot" style="background:#70a1ff;" data-color="#70a1ff"></span>
+            <span class="color-dot" style="background:#a29bfe;" data-color="#a29bfe"></span>
+            <span class="color-dot" style="background:#ff6348;" data-color="#ff6348"></span>
+          </div>
+          <input type="hidden" id="msgColor" value="#ff6b9d">
+        </div>
+        <div class="form-group">
+          <label>留言内容</label>
+          <textarea class="textarea" id="msgText" placeholder="写下你想说的话..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="addMessage()">💌 添加留言</button>
+      </div>
+
+      <div class="card">
+        <h3>📋 留言列表</h3>
+        <div id="messageAdminList">
+          <div class="empty-state">
+            <span class="icon">💬</span>
+            还没有留言
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 纪念日管理 ===== -->
+    <div class="tab-content" id="tab-dates">
+      <div class="card">
+        <h3>💕 在一起开始日期</h3>
+        <div class="form-group">
+          <label>选择你们在一起的第一天</label>
+          <input type="date" class="input" id="startDate">
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📅 自定义纪念日</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>名称</label>
+            <input type="text" class="input" id="anniversaryName" placeholder="例如：宝贝的生日">
+          </div>
+          <div class="form-group">
+            <label>日期</label>
+            <input type="date" class="input" id="anniversaryDate">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addAnniversary()">➕ 添加纪念日</button>
+      </div>
+
+      <div class="card">
+        <h3>📋 纪念日列表</h3>
+        <div id="anniversaryAdminList">
+          <div class="empty-state">
+            <span class="icon">📅</span>
+            还没有添加纪念日
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 基本设置 ===== -->
+    <div class="tab-content" id="tab-settings">
+      <div class="card">
+        <h3>⚙️ 基本设置</h3>
+        <div class="form-group">
+          <label>空间标题</label>
+          <input type="text" class="input" id="settingTitle" placeholder="❤️ 我们的空间">
+        </div>
+        <div class="form-group">
+          <label>副标题</label>
+          <input type="text" class="input" id="settingSubtitle" placeholder="记录属于我们的每一个瞬间">
+        </div>
+        <div class="form-group">
+          <label>主题色</label>
+          <div class="color-options" id="themeColorOptions">
+            <span class="color-dot" style="background:#ff6b9d;" data-color="#ff6b9d"></span>
+            <span class="color-dot" style="background:#ffa502;" data-color="#ffa502"></span>
+            <span class="color-dot" style="background:#70a1ff;" data-color="#70a1ff"></span>
+            <span class="color-dot" style="background:#a29bfe;" data-color="#a29bfe"></span>
+            <span class="color-dot" style="background:#2ed573;" data-color="#2ed573"></span>
+            <span class="color-dot" style="background:#ff6348;" data-color="#ff6348"></span>
+          </div>
+          <input type="hidden" id="settingThemeColor" value="#ff6b9d">
+        </div>
+        <div class="form-group">
+          <label>音乐文件名（放在 music 文件夹中，支持 mp3/ogg/wav）</label>
+          <input type="text" class="input" id="settingMusic" placeholder="例如：love.mp3">
+          <p style="font-size:0.8rem;color:var(--text-light);margin-top:0.3rem;">
+            把音乐文件放到 music 文件夹，然后在这里输入文件名
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 保存设置</button>
+      </div>
+    </div>
+
+    <!-- 导出操作 -->
+    <div class="card" style="text-align:center;">
+      <h3 style="margin-bottom:1rem;">📦 导出配置</h3>
+      <p style="color:var(--text-light);margin-bottom:1rem;">
+        保存后，配置会自动导出为 JSON 文件，你可以下载备用。主页面会自动读取 localStorage 中的配置。
+      </p>
+      <div class="export-actions">
+        <button class="btn btn-primary" onclick="saveAndExport()">💾 保存并导出配置</button>
+        <button class="btn btn-secondary" onclick="exportConfig()">📥 下载配置文件</button>
+        <button class="btn btn-secondary" onclick="importConfigPrompt()">📤 导入配置文件</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importConfig(event)">
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
