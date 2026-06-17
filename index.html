@@ -5,255 +5,365 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>❤️ 我们的空间</title>
   <style>
-    /* ===== 变量 ===== */
-    :root { --primary:#ff6b9d; --primary-light:#ff8fb3; --primary-dark:#e0557f; --bg:#fff5f7; --card:#ffffff; --text:#4a4a4a; --text-light:#888; --shadow:0 4px 20px rgba(255,107,157,0.12); --shadow-hover:0 8px 30px rgba(255,107,157,0.2); --radius:16px; }
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
-    .container { max-width:1000px; margin:0 auto; padding:1.5rem; position:relative; z-index:1; }
-    h1 { font-size:2rem; text-align:center; }
-    .subtitle { text-align:center; color:var(--text-light); margin-top:0.3rem; }
+    :root { --pink:#ff6b9d; --pink-light:#ff8fb3; --pink-dark:#e0557f; --bg:#fff5f7; }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:#4a4a4a;min-height:100vh;overflow-x:hidden}
+    button,input,textarea{font-family:inherit}
 
-    /* 飘落心形 */
-    .hearts { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
-    .heart { position:absolute; top:-50px; animation:fall linear infinite; opacity:0.6; }
-    @keyframes fall { 0%{transform:translateY(-50px) rotate(0deg);opacity:0.8;} 50%{opacity:0.4;} 100%{transform:translateY(105vh) rotate(360deg);opacity:0;} }
+    /* 飘心 */
+    .hearts{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+    .heart{position:absolute;top:-50px;animation:fall linear infinite;opacity:.6}
+    @keyframes fall{0%{transform:translateY(-50px) rotate(0deg);opacity:.8}50%{opacity:.4}100%{transform:translateY(105vh) rotate(360deg);opacity:0}}
+
+    /* 主容器 */
+    .container{max-width:960px;margin:0 auto;padding:1.5rem;position:relative;z-index:1}
+
+    /* 顶部按钮 */
+    .top-bar{display:flex;justify-content:flex-end;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:0.3rem;padding:0.55rem 1.2rem;border-radius:50px;font-size:0.9rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+    .btn-pink{background:linear-gradient(135deg,#ff6b9d,#ff8fb3);color:#fff;box-shadow:0 4px 15px rgba(255,107,157,.3)}
+    .btn-pink:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,157,.4)}
+    .btn-white{background:#fff;color:var(--pink);box-shadow:0 2px 10px rgba(0,0,0,.06)}
+    .btn-white:hover{background:var(--pink);color:#fff}
+    .btn-red{background:#ff4757;color:#fff}
+    .btn-red:hover{background:#e84118}
+
+    /* 标题 */
+    .header{text-align:center;padding:2rem 0 1rem}
+    .header h1{font-size:2rem}
+    .header .sub{color:#888;margin-top:.3rem}
 
     /* 卡片 */
-    .card { background:var(--card); border-radius:var(--radius); padding:2rem; margin-bottom:1.5rem; box-shadow:var(--shadow); transition:transform 0.3s, box-shadow 0.3s; }
-    .card:hover { transform:translateY(-2px); box-shadow:var(--shadow-hover); }
-    .section-title { text-align:center; margin:2rem 0 1rem; display:flex; align-items:center; justify-content:center; gap:0.8rem; font-size:1.3rem; }
-    .section-title::before,.section-title::after { content:''; height:2px; width:40px; background:linear-gradient(90deg,transparent,var(--primary-light)); }
-    .section-title::after { background:linear-gradient(90deg,var(--primary-light),transparent); }
+    .card{background:#fff;border-radius:16px;padding:1.8rem;margin-bottom:1.2rem;box-shadow:0 4px 20px rgba(255,107,157,.1);transition:transform .3s}
+    .card:hover{transform:translateY(-2px)}
 
     /* 计时 */
-    .counter-section { text-align:center; padding:2rem; }
-    .counter-days { font-size:3.5rem; font-weight:800; background:linear-gradient(135deg,var(--primary),var(--primary-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2; }
-    .counter-label { font-size:1.1rem; color:var(--text-light); margin-top:0.3rem; }
-    .ann-list { display:flex; flex-wrap:wrap; gap:0.8rem; justify-content:center; margin-top:1rem; }
-    .ann-tag { background:#fff0f3; padding:0.5rem 1.2rem; border-radius:50px; font-size:0.9rem; font-weight:600; color:var(--primary-dark); }
+    .counter{text-align:center}
+    .days{font-size:3.5rem;font-weight:800;background:linear-gradient(135deg,#ff6b9d,#ff8fb3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}
+    .days-label{color:#888;margin-top:.3rem}
+    .ann-tags{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-top:1rem}
+    .ann-tag{background:#fff0f3;padding:.4rem 1rem;border-radius:50px;font-size:.85rem;font-weight:600;color:var(--pink-dark)}
 
-    /* 照片滚动 */
-    .photo-wrapper { overflow:hidden; border-radius:var(--radius); margin:1rem 0; }
-    .photo-track { display:flex; gap:1rem; padding:1rem 0; }
-    .photo-track.paused { animation-play-state:paused; }
-    .photo-item { flex-shrink:0; width:260px; height:330px; border-radius:var(--radius); overflow:hidden; cursor:pointer; box-shadow:var(--shadow); transition:transform 0.3s, box-shadow 0.3s; }
-    .photo-item:hover { transform:scale(1.03); box-shadow:var(--shadow-hover); }
-    .photo-item img { width:100%; height:100%; object-fit:cover; }
-    @keyframes scrollPhotos { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+    /* 照片 */
+    .photo-wrap{overflow:hidden;border-radius:16px;margin:.5rem 0}
+    .photo-track{display:flex;gap:1rem;padding:1rem 0}
+    .photo-track.paused{animation-play-state:paused}
+    .photo-item{flex-shrink:0;width:250px;height:320px;border-radius:16px;overflow:hidden;cursor:pointer;box-shadow:0 4px 20px rgba(255,107,157,.12);transition:transform .3s}
+    .photo-item:hover{transform:scale(1.03)}
+    .photo-item img{width:100%;height:100%;object-fit:cover}
+    @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
     /* 灯箱 */
-    .lightbox { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; cursor:pointer; }
-    .lightbox.active { display:flex; }
-    .lightbox img { max-width:90%; max-height:90vh; border-radius:var(--radius); object-fit:contain; }
-    .lightbox-close { position:absolute; top:20px; right:30px; font-size:3rem; color:white; cursor:pointer; z-index:1001; transition:transform 0.3s; }
-    .lightbox-close:hover { transform:scale(1.2); color:var(--primary); }
+    .lb{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:999;justify-content:center;align-items:center;cursor:pointer}
+    .lb.on{display:flex}
+    .lb img{max-width:90%;max-height:90vh;border-radius:16px;object-fit:contain}
+    .lb .x{position:absolute;top:20px;right:30px;font-size:3rem;color:#fff;cursor:pointer}
+    .lb .x:hover{color:var(--pink)}
 
     /* 留言 */
-    .msg-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1rem; }
-    .msg-card { background:var(--card); border-radius:var(--radius); padding:1.5rem; box-shadow:var(--shadow); border-left:4px solid var(--primary); transition:transform 0.3s; }
-    .msg-card:hover { transform:translateY(-3px); }
-    .msg-card .author { font-weight:700; font-size:0.9rem; margin-bottom:0.3rem; display:flex; align-items:center; gap:0.5rem; }
-    .msg-card .dot { width:10px; height:10px; border-radius:50%; }
-    .msg-card .date { font-size:0.8rem; color:var(--text-light); }
-    .msg-card .txt { margin-top:0.5rem; line-height:1.7; word-break:break-word; }
+    .msg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem}
+    .msg-card{background:#fff;border-radius:16px;padding:1.3rem;box-shadow:0 4px 20px rgba(255,107,157,.1);border-left:4px solid var(--pink);transition:transform .3s}
+    .msg-card:hover{transform:translateY(-3px)}
+    .msg-card .who{font-weight:700;font-size:.85rem;display:flex;align-items:center;gap:.4rem}
+    .msg-card .dot{width:10px;height:10px;border-radius:50%}
+    .msg-card .time{font-size:.75rem;color:#aaa}
+    .msg-card .txt{margin-top:.4rem;line-height:1.7;word-break:break-word}
 
     /* 音乐 */
-    .music-player { display:flex; align-items:center; gap:1rem; padding:1rem 1.5rem; background:var(--card); border-radius:50px; box-shadow:var(--shadow); max-width:400px; margin:1rem auto; }
-    .music-player .btn-play { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:white; border:none; font-size:1.2rem; cursor:pointer; flex-shrink:0; }
-    .music-player .btn-play:hover { transform:scale(1.1); }
-    .music-player .info { flex:1; min-width:0; }
-    .music-player .song { font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .music-player .hint { font-size:0.75rem; color:var(--text-light); }
+    .music{display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;background:#fff;border-radius:50px;box-shadow:0 4px 20px rgba(255,107,157,.1);max-width:400px;margin:0 auto}
+    .music .play{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#ff6b9d,#ff8fb3);color:#fff;border:none;font-size:1.2rem;cursor:pointer;flex-shrink:0;transition:transform .2s}
+    .music .play:hover{transform:scale(1.1)}
+    .music .info{flex:1;min-width:0}
+    .music .song{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    .empty { text-align:center; color:#aaa; padding:2rem; }
-    .empty .icon { font-size:2.5rem; display:block; margin-bottom:0.5rem; }
-    .nav-link { position:fixed; top:20px; right:20px; z-index:100; font-size:0.85rem; padding:0.5rem 1rem; background:rgba(255,255,255,0.85); border-radius:50px; color:var(--text-light); text-decoration:none; box-shadow:0 2px 10px rgba(0,0,0,0.08); }
-    .nav-link:hover { color:var(--primary); }
-    .toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:0.7rem 1.5rem; border-radius:50px; font-size:0.9rem; z-index:2000; opacity:0; transition:opacity 0.3s; pointer-events:none; }
-    .toast.show { opacity:1; }
+    /* 管理面板 */
+    .admin-panel{display:none}
+    .admin-panel.on{display:block}
+    .form-group{margin-bottom:1rem}
+    .form-group label{display:block;font-weight:600;margin-bottom:.3rem;font-size:.9rem}
+    .form-group input,.form-group textarea{width:100%;padding:.6rem 1rem;border:2px solid #f0d0d8;border-radius:10px;font-size:.95rem;outline:none;transition:border .2s}
+    .form-group input:focus,.form-group textarea:focus{border-color:var(--pink)}
+    .form-group textarea{min-height:70px;resize:vertical}
+    .form-row{display:flex;gap:.8rem;align-items:end;flex-wrap:wrap}
+    .form-row>*{flex:1;min-width:120px}
+    .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.7rem}
+    .photo-thumb{aspect-ratio:4/5;border-radius:10px;overflow:hidden;position:relative;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+    .photo-thumb img{width:100%;height:100%;object-fit:cover}
+    .photo-thumb .del{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(255,71,87,.9);color:#fff;border:none;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center}
+    .color-dots{display:flex;gap:.5rem;flex-wrap:wrap}
+    .color-dot{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s}
+    .color-dot:hover{transform:scale(1.15)}
+    .color-dot.sel{border-color:#333;box-shadow:0 0 0 3px rgba(0,0,0,.1)}
+    .upload-zone{border:2px dashed var(--pink-light);border-radius:16px;padding:2rem;text-align:center;cursor:pointer;background:#fff8fa;transition:all .2s}
+    .upload-zone:hover{border-color:var(--pink);background:#ffe0eb}
+    .upload-zone .big{font-size:2.5rem;display:block;margin-bottom:.3rem}
+    .list-item{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.7rem 1rem;background:#fff8fa;border-radius:10px;margin-bottom:.4rem}
+    .section-title{text-align:center;margin:1.5rem 0;display:flex;align-items:center;justify-content:center;gap:.6rem;font-size:1.2rem;font-weight:700}
+    .section-title::before,.section-title::after{content:'';height:2px;width:35px;background:linear-gradient(90deg,transparent,var(--pink-light))}
+    .section-title::after{background:linear-gradient(90deg,var(--pink-light),transparent)}
+    .divider{text-align:center;color:#bbb;margin:1.2rem 0;position:relative}
+    .divider::before,.divider::after{content:'';position:absolute;top:50%;width:30%;height:1px;background:#f0d0d8}
+    .divider::before{left:0}.divider::after{right:0}
+    .empty{text-align:center;color:#aaa;padding:1.5rem}
+    .hint{color:#888;font-size:.8rem;margin-top:.2rem}
+    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:.7rem 1.5rem;border-radius:50px;font-size:.9rem;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none}
+    .toast.on{opacity:1}
 
-    @media(max-width:768px) { .counter-days{font-size:2.5rem;} .photo-item{width:200px;height:260px;} .msg-grid{grid-template-columns:1fr;} }
-    ::-webkit-scrollbar { width:6px; height:6px; } ::-webkit-scrollbar-thumb { background:var(--primary-light); border-radius:3px; }
+    @media(max-width:768px){.days{font-size:2.5rem}.photo-item{width:200px;height:260px}.msg-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 
-<div class="hearts" id="heartsContainer"></div>
-<a href="admin.html" class="nav-link">⚙️ 管理</a>
+<div class="hearts" id="hearts"></div>
+<audio id="bgm" loop style="display:none"></audio>
+<div class="lb" id="lb"><span class="x" id="lbX">&times;</span><img id="lbImg" src=""></div>
+<div class="toast" id="toast"></div>
 
 <div class="container">
 
+  <!-- 顶部按钮栏 -->
+  <div class="top-bar">
+    <button class="btn btn-white" id="btnAdmin" onclick="toggleAdmin()">⚙️ 管理空间</button>
+  </div>
+
   <!-- 标题 -->
-  <header style="text-align:center;padding:2rem 0 1rem;">
-    <h1 id="siteTitle">❤️ 我们的空间</h1>
-    <p class="subtitle" id="siteSubtitle">记录属于我们的每一个瞬间</p>
-  </header>
+  <div class="header"><h1 id="titleEl">❤️ 我们的空间</h1><p class="sub" id="subEl">记录属于我们的每一个瞬间</p></div>
 
   <!-- 计时 -->
-  <section class="card counter-section">
-    <div class="counter-days" id="daysCount">--</div>
-    <div class="counter-label">我们已经在一起</div>
-    <div class="ann-list" id="anniversariesList"><span class="empty">还没有添加纪念日哦~</span></div>
-  </section>
+  <div class="card counter">
+    <div class="days" id="daysEl">--</div><div class="days-label">我们已经在一起</div>
+    <div class="ann-tags" id="annEl"></div>
+  </div>
 
   <!-- 照片 -->
-  <section>
-    <div class="section-title">📸 我们的瞬间</div>
-    <div class="photo-wrapper" id="photoScrollWrapper">
-      <div class="photo-track" id="photoTrack">
-        <div class="empty" style="min-width:100%;padding:4rem;"><span class="icon">📷</span>还没有照片，去管理页添加吧~</div>
-      </div>
-    </div>
-  </section>
+  <div><div class="section-title">📸 我们的瞬间</div>
+    <div class="photo-wrap" id="photoWrap"><div class="photo-track" id="photoTrack"></div></div>
+  </div>
 
   <!-- 留言 -->
-  <section>
-    <div class="section-title">💌 留言板</div>
-    <div class="msg-grid" id="messagesGrid">
-      <div class="empty"><span class="icon">💬</span>还没有留言，去管理页写第一条吧~</div>
-    </div>
-  </section>
+  <div><div class="section-title">💌 留言板</div><div class="msg-grid" id="msgGrid"></div></div>
 
   <!-- 音乐 -->
-  <section>
-    <div class="section-title">🎵 背景音乐</div>
-    <div class="music-player" id="musicPlayer">
-      <button class="btn-play" id="btnPlay" title="播放/暂停">▶️</button>
-      <div class="info">
-        <div class="song" id="songName">未设置音乐</div>
-        <div class="hint">在管理页设置音乐文件</div>
+  <div><div class="section-title">🎵 背景音乐</div>
+    <div class="music">
+      <button class="play" id="btnPlay" onclick="toggleMusic()">▶️</button>
+      <div class="info"><div class="song" id="songEl">未设置音乐</div><div class="hint">在管理面板设置</div></div>
+    </div>
+  </div>
+
+  <!-- ==================== 管理面板 ==================== -->
+  <div class="admin-panel" id="adminPanel">
+    <div style="height:2rem"></div>
+    <div class="section-title" style="color:var(--pink);">⚙️ 管理面板</div>
+
+    <!-- 照片管理 -->
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">📸 照片管理</h3>
+      <div class="upload-zone" id="upZone"><span class="big">📷</span><strong>点击这里选择照片</strong><div class="hint">支持 JPG/PNG/GIF/WebP，可多选</div></div>
+      <input type="file" id="upInput" accept="image/*" multiple style="display:none">
+      <div class="divider">或</div>
+      <div class="form-row">
+        <div class="form-group"><label>手动输入文件名</label><input type="text" id="manualFile" placeholder="例如：IMG_001.jpg"></div>
+        <button class="btn btn-pink" onclick="addManualPhoto()" style="height:fit-content">➕ 添加</button>
+      </div>
+      <p class="hint">照片放在 photos 文件夹中，在这里输入文件名</p>
+      <div style="margin-top:1rem"><strong>当前照片（<span id="photoNum">0</span> 张）</strong></div>
+      <div class="photo-grid" id="photoList" style="margin-top:.5rem"></div>
+    </div>
+
+    <!-- 留言管理 -->
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">💬 留言管理</h3>
+      <div class="form-group"><label>留言人</label><input type="text" id="mWho" placeholder="例如：小可爱"></div>
+      <div class="form-group"><label>标签颜色</label>
+        <div class="color-dots" id="mColors">
+          <span class="color-dot sel" style="background:#ff6b9d" data-c="#ff6b9d"></span>
+          <span class="color-dot" style="background:#ffa502" data-c="#ffa502"></span>
+          <span class="color-dot" style="background:#7bed9f" data-c="#7bed9f"></span>
+          <span class="color-dot" style="background:#70a1ff" data-c="#70a1ff"></span>
+          <span class="color-dot" style="background:#a29bfe" data-c="#a29bfe"></span>
+          <span class="color-dot" style="background:#ff6348" data-c="#ff6348"></span>
+        </div>
+        <input type="hidden" id="mColor" value="#ff6b9d">
+      </div>
+      <div class="form-group"><label>内容</label><textarea id="mText" placeholder="想说的话..."></textarea></div>
+      <button class="btn btn-pink" onclick="addMsg()">💌 添加留言</button>
+      <div id="msgAdminList" style="margin-top:1rem"></div>
+    </div>
+
+    <!-- 纪念日 -->
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">📅 纪念日</h3>
+      <div class="form-group"><label>💕 在一起第一天</label><input type="date" id="startDate"></div>
+      <div class="divider">添加更多</div>
+      <div class="form-row">
+        <div class="form-group"><label>名称</label><input type="text" id="aName" placeholder="例如：宝贝的生日"></div>
+        <div class="form-group"><label>日期</label><input type="date" id="aDate"></div>
+        <button class="btn btn-pink" onclick="addAnn()" style="height:fit-content">➕ 添加</button>
+      </div>
+      <div id="annAdminList" style="margin-top:1rem"></div>
+    </div>
+
+    <!-- 设置 -->
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">⚙️ 基本设置</h3>
+      <div class="form-group"><label>空间标题</label><input type="text" id="sTitle" placeholder="❤️ 我们的空间"></div>
+      <div class="form-group"><label>副标题</label><input type="text" id="sSub" placeholder="记录属于我们的每一个瞬间"></div>
+      <div class="form-group"><label>主题色</label>
+        <div class="color-dots" id="tColors">
+          <span class="color-dot sel" style="background:#ff6b9d" data-c="#ff6b9d"></span>
+          <span class="color-dot" style="background:#ffa502" data-c="#ffa502"></span>
+          <span class="color-dot" style="background:#70a1ff" data-c="#70a1ff"></span>
+          <span class="color-dot" style="background:#a29bfe" data-c="#a29bfe"></span>
+          <span class="color-dot" style="background:#2ed573" data-c="#2ed573"></span>
+          <span class="color-dot" style="background:#ff6348" data-c="#ff6348"></span>
+        </div>
+        <input type="hidden" id="sColor" value="#ff6b9d">
+      </div>
+      <div class="form-group"><label>🎵 音乐文件（放 music 文件夹）</label><input type="text" id="sMusic" placeholder="例如：love.mp3"></div>
+      <button class="btn btn-pink" onclick="saveSettings()">💾 保存设置</button>
+    </div>
+
+    <!-- 导出/导入 -->
+    <div class="card" style="text-align:center">
+      <h3 style="margin-bottom:1rem">📦 备份 & 发布</h3>
+      <div class="hint" style="margin-bottom:1rem">所有内容自动保存在浏览器中。下载备份文件以防丢失。</div>
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-pink" onclick="downloadBackup()">📥 下载备份</button>
+        <button class="btn btn-white" onclick="restoreBackup()">📤 恢复备份</button>
+        <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="doRestore(event)">
       </div>
     </div>
-    <audio id="bgMusic" loop style="display:none;"></audio>
-  </section>
 
+    <button class="btn btn-white" onclick="toggleAdmin()" style="width:100%;margin-top:.5rem">👁️ 关闭管理面板，回到预览</button>
+
+  </div>
 </div>
-
-<!-- 灯箱 -->
-<div class="lightbox" id="lightbox">
-  <span class="lightbox-close" id="lightboxClose">&times;</span>
-  <img id="lightboxImg" src="" alt="照片">
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-// ===== 配置 =====
-const D = {
-  title:'❤️ 我们的空间',subtitle:'记录属于我们的每一个瞬间',themeColor:'#ff6b9d',
-  musicFile:'',startDate:'',photos:[],messages:[],anniversaries:[]
-};
-let C = {};
+// ===== 核心数据 =====
+const D = {title:'❤️ 我们的空间',subtitle:'记录属于我们的每一个瞬间',color:'#ff6b9d',music:'',start:'',photos:[],msgs:[],anns:[]};
+let C;
+const K = 'cs-data';
 
-function init() {
-  try { C = Object.assign({}, D, JSON.parse(localStorage.getItem('couples-space-config')||'{}')); }
-  catch(e) { C = Object.assign({}, D); }
-  C.photos=C.photos||[]; C.messages=C.messages||[]; C.anniversaries=C.anniversaries||[];
+function load(){try{C=JSON.parse(localStorage.getItem(K)||'{}');C=Object.assign({},D,C)}catch(e){C=Object.assign({},D)}C.photos=C.photos||[];C.msgs=C.msgs||[];C.anns=C.anns||[]}
+function save(){localStorage.setItem(K,JSON.stringify(C))}
 
-  applyTheme();
-  renderAll();
-  initHearts();
-  initMusic();
-  initLightbox();
-}
-
-function applyTheme() {
-  const c = C.themeColor||'#ff6b9d';
-  document.documentElement.style.setProperty('--primary',c);
-  // 简单变体
-  const num = parseInt(c.replace('#',''),16);
-  const r=Math.min(255,(num>>16)+40), g=Math.min(255,((num>>8)&0xFF)+40), b=Math.min(255,(num&0xFF)+40);
-  document.documentElement.style.setProperty('--primary-light','#'+(0x1000000+(r<<16)+(g<<8)+b).toString(16).slice(1));
-  const r2=Math.max(0,(num>>16)-40), g2=Math.max(0,((num>>8)&0xFF)-40), b2=Math.max(0,(num&0xFF)-40);
-  document.documentElement.style.setProperty('--primary-dark','#'+(0x1000000+(r2<<16)+(g2<<8)+b2).toString(16).slice(1));
-}
-
-function renderAll() {
+// ===== 渲染全部 =====
+function render() {
   // 标题
-  document.getElementById('siteTitle').textContent=C.title;
-  document.getElementById('siteSubtitle').textContent=C.subtitle;
-  document.title=C.title;
+  document.getElementById('titleEl').textContent=C.title;document.title=C.title;
+  document.getElementById('subEl').textContent=C.subtitle;
+  // 主题色
+  const co=C.color||'#ff6b9d';
+  document.documentElement.style.setProperty('--pink',co);
+  document.documentElement.style.setProperty('--pink-dark',dark(co));
+  document.documentElement.style.setProperty('--pink-light',light(co));
 
-  // 计时
-  if (C.startDate) {
-    const d=Math.floor((new Date()-new Date(C.startDate))/(86400000));
-    document.getElementById('daysCount').textContent=d>=0?d:'--';
-  }
+  // 天数
+  const daysEl=document.getElementById('daysEl');
+  if(C.start){const d=Math.floor((Date.now()-new Date(C.start+'T00:00:00'))/864e5);daysEl.textContent=d>=0?d:'--'}else daysEl.textContent='--';
 
   // 纪念日
-  const annEl=document.getElementById('anniversariesList');
-  if (C.anniversaries.length>0) {
-    const td=new Date(); td.setHours(0,0,0,0); const n=td.getTime();
-    annEl.innerHTML=C.anniversaries.map(a=>{
-      const d=new Date(a.date); d.setFullYear(td.getFullYear());
-      if(d.getTime()<n) d.setFullYear(td.getFullYear()+1);
-      return `<span class="ann-tag">📌 ${e(a.name)}：还有 ${Math.ceil((d.getTime()-n)/86400000)} 天</span>`;
-    }).join('');
-  }
+  const annEl=document.getElementById('annEl');
+  if(C.anns.length){const td=new Date();td.setHours(0,0,0,0);const n=td.getTime();
+    annEl.innerHTML=C.anns.map(a=>{const d=new Date(a.date);d.setFullYear(td.getFullYear());if(d.getTime()<n)d.setFullYear(td.getFullYear()+1);return`<span class="ann-tag">📌 ${esc(a.name)}：还有 ${Math.ceil((d.getTime()-n)/864e5)} 天</span>`}).join('')}
+  else annEl.innerHTML='<span class="empty">还没有纪念日哦~</span>';
 
   // 照片
   const track=document.getElementById('photoTrack');
-  const ph=C.photos;
-  if (ph.length===0) {
-    track.innerHTML='<div class="empty" style="min-width:100%;padding:4rem;"><span class="icon">📷</span>还没有照片，去管理页添加吧~</div>';
-    track.style.animation='none';
-  } else {
-    const mk = ph.map((p,i)=>`<div class="photo-item" onclick="openLightbox('${ea(p)}')"><img src="${ea(p.startsWith('data:')?p:'photos/'+p)}" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>`).join('');
-    if (ph.length===1) { track.innerHTML=mk; track.style.animation='none'; }
-    else {
-      let items=''; const reps=Math.max(2,Math.ceil(8/ph.length));
-      for(let i=0;i<reps;i++) items+=mk;
-      track.innerHTML=items;
-      track.style.animation=`scrollPhotos ${Math.max(ph.length*3,12)}s linear infinite`;
-    }
-    document.getElementById('photoScrollWrapper').onmouseenter=()=>track.classList.add('paused');
-    document.getElementById('photoScrollWrapper').onmouseleave=()=>track.classList.remove('paused');
+  if(!C.photos.length){track.innerHTML='<div class="empty" style="min-width:100%">还没有照片</div>';track.style.animation='none'}else{
+    const mk=C.photos.map((p,i)=>`<div class="photo-item" onclick="openLb('${ea(p)}','${ea(p.startsWith(\'data:\')?p:\'photos/\'+p)}')"><img src="${ea(p.startsWith('data:')?p:'photos/'+p)}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`).join('');
+    if(C.photos.length===1){track.innerHTML=mk;track.style.animation='none'}else{let r='';const t=Math.max(2,Math.ceil(8/C.photos.length));for(let i=0;i<t;i++)r+=mk;track.innerHTML=r;track.style.animation=`scroll ${Math.max(C.photos.length*3,12)}s linear infinite`}
+    document.getElementById('photoWrap').onmouseenter=()=>track.classList.add('paused');
+    document.getElementById('photoWrap').onmouseleave=()=>track.classList.remove('paused');
   }
 
   // 留言
-  const mg=document.getElementById('messagesGrid');
-  if (C.messages.length===0) { mg.innerHTML='<div class="empty"><span class="icon">💬</span>还没有留言</div>'; }
-  else { mg.innerHTML=C.messages.map(m=>`<div class="msg-card"><div class="author"><span class="dot" style="background:${ea(m.color||'#ff6b9d')};"></span>${e(m.author||'匿名')}</div><div class="date">${e(m.date||'')}</div><div class="txt">${e(m.text||'')}</div></div>`).join(''); }
+  const mg=document.getElementById('msgGrid');
+  if(!C.msgs.length)mg.innerHTML='<div class="empty">还没有留言</div>';
+  else mg.innerHTML=C.msgs.map(m=>`<div class="msg-card"><div class="who"><span class="dot" style="background:${ea(m.color||'#ff6b9d')}"></span>${esc(m.who||'匿名')}</div><div class="time">${esc(m.date||'')}</div><div class="txt">${esc(m.text||'')}</div></div>`).join('');
 
   // 音乐
-  document.getElementById('songName').textContent=C.musicFile||'未设置音乐';
-  if(C.musicFile) document.getElementById('bgMusic').src='music/'+C.musicFile;
+  document.getElementById('songEl').textContent=C.music||'未设置音乐';
+  if(C.music)document.getElementById('bgm').src='music/'+C.music;
+
+  // 管理面板同步
+  renderAdmin();
 }
 
-// 心形
-function initHearts() {
-  const ct=document.getElementById('heartsContainer');
-  const h=['❤️','💕','💗','💖','💘','💝','💓','💞','🩷','💌'];
-  function mk(){const s=document.createElement('span');s.className='heart';s.textContent=h[Math.floor(Math.random()*h.length)];s.style.left=Math.random()*100+'%';s.style.fontSize=(Math.random()*20+16)+'px';s.style.animationDuration=(Math.random()*6+8)+'s';s.style.animationDelay=Math.random()*5+'s';ct.appendChild(s);const d=parseFloat(s.style.animationDuration)+parseFloat(s.style.animationDelay);setTimeout(()=>s.remove(),d*1000+500);}
-  for(let i=0;i<12;i++) setTimeout(mk,Math.random()*3000);
-  setInterval(mk,2000);
+// ===== 管理面板渲染 =====
+function renderAdmin() {
+  document.getElementById('photoNum').textContent=C.photos.length;
+  const pl=document.getElementById('photoList');
+  if(!C.photos.length)pl.innerHTML='<div class="empty" style="grid-column:1/-1">还没有照片</div>';
+  else pl.innerHTML=C.photos.map((p,i)=>{const s=p.startsWith('data:')?p:'photos/'+p;return`<div class="photo-thumb"><img src="${ea(s)}" loading="lazy" onerror="this.style.display='none'"><button class="del" onclick="delPhoto(${i})">✕</button></div>`}).join('');
+
+  const ml=document.getElementById('msgAdminList');
+  if(!C.msgs.length)ml.innerHTML='<div class="empty">还没有留言</div>';
+  else ml.innerHTML=C.msgs.map((m,i)=>`<div class="list-item"><div><strong>${esc(m.who||'匿名')}</strong> <span style="color:#aaa;font-size:.8rem">${esc(m.date||'')}</span><br>${esc(m.text||'')}</div><button class="btn btn-red" style="padding:.3rem .8rem;font-size:.75rem" onclick="delMsg(${i})">删除</button></div>`).join('');
+
+  const al=document.getElementById('annAdminList');
+  if(!C.anns.length)al.innerHTML='<div class="empty">还没有纪念日</div>';
+  else al.innerHTML=C.anns.map((a,i)=>`<div class="list-item"><span><strong>${esc(a.name)}</strong> — ${esc(a.date)}</span><button class="btn btn-red" style="padding:.3rem .8rem;font-size:.75rem" onclick="delAnn(${i})">删除</button></div>`).join('');
+
+  document.getElementById('sTitle').value=C.title||'';
+  document.getElementById('sSub').value=C.subtitle||'';
+  document.getElementById('sMusic').value=C.music||'';
+  document.getElementById('startDate').value=C.start||'';
+  document.querySelectorAll('#tColors .color-dot').forEach(d=>d.classList.toggle('sel',d.dataset.c===C.color));
+  document.getElementById('sColor').value=C.color||'#ff6b9d';
 }
 
-// 音乐
-function initMusic() {
-  const btn=document.getElementById('btnPlay'), a=document.getElementById('bgMusic');
-  btn.onclick=()=>{if(!a.src||a.src.endsWith('/music/')){showToast('请先在管理页设置音乐');return;}a.paused?a.play().then(()=>btn.textContent='⏸️').catch(()=>showToast('浏览器阻止了自动播放')):(a.pause(),btn.textContent='▶️');};
-  a.oncanplay=()=>a.play().then(()=>btn.textContent='⏸️').catch(()=>btn.textContent='▶️');
-}
+// ===== 管理操作 =====
+function addManualPhoto(){const v=document.getElementById('manualFile').value.trim();if(!v)return toast('请输入文件名');if(C.photos.includes(v))return toast('已在列表中');C.photos.push(v);save();render();toast('✅ 已添加');document.getElementById('manualFile').value=''}
+function delPhoto(i){if(!confirm('删除这张照片？'))return;C.photos.splice(i,1);save();render();toast('已删除')}
 
-// 灯箱
-function initLightbox() {
-  const lb=document.getElementById('lightbox'), cl=document.getElementById('lightboxClose');
-  cl.onclick=e=>{e.stopPropagation();lb.classList.remove('active');};
-  lb.onclick=()=>lb.classList.remove('active');
-  document.onkeydown=e=>{if(e.key==='Escape') lb.classList.remove('active');};
-}
-function openLightbox(src) {
-  document.getElementById('lightboxImg').src=src.startsWith('data:')?src:'photos/'+src;
-  document.getElementById('lightbox').classList.add('active');
-}
+function addMsg(){const w=document.getElementById('mWho').value.trim(),c=document.getElementById('mColor').value,t=document.getElementById('mText').value.trim();if(!w)return toast('请输入留言人');if(!t)return toast('请输入内容');const n=new Date();C.msgs.push({who:w,color:c,text:t,date:`${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())} ${pad(n.getHours())}:${pad(n.getMinutes())}`});save();render();document.getElementById('mWho').value='';document.getElementById('mText').value='';toast('💌 已添加')}
+function delMsg(i){if(!confirm('删除这条留言？'))return;C.msgs.splice(i,1);save();render();toast('已删除')}
 
-// 工具
-function showToast(m) { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2500); }
-function e(s) { if(!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function ea(s) { if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function addAnn(){const n=document.getElementById('aName').value.trim(),d=document.getElementById('aDate').value;if(!n)return toast('请输入名称');if(!d)return toast('请选择日期');C.anns.push({name:n,date:d});C.anns.sort((a,b)=>{const y=new Date().getFullYear();return new Date(y,new Date(a.date).getMonth(),new Date(a.date).getDate())-new Date(y,new Date(b.date).getMonth(),new Date(b.date).getDate())});save();render();document.getElementById('aName').value='';document.getElementById('aDate').value='';toast('📅 已添加')}
+function delAnn(i){if(!confirm('删除这个纪念日？'))return;C.anns.splice(i,1);save();render();toast('已删除')}
 
-document.addEventListener('DOMContentLoaded', init);
+function saveSettings(){C.title=document.getElementById('sTitle').value.trim()||C.title;C.subtitle=document.getElementById('sSub').value.trim()||C.subtitle;C.color=document.getElementById('sColor').value;C.music=document.getElementById('sMusic').value.trim();C.start=document.getElementById('startDate').value;save();render();toast('✅ 设置已保存')}
+
+// ===== 备份 =====
+function downloadBackup(){save();const b=new Blob([JSON.stringify(C,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='couples-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('📥 备份已下载')}
+function restoreBackup(){document.getElementById('restoreInput').click()}
+function doRestore(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{C=Object.assign({},D,JSON.parse(ev.target.result));C.photos=C.photos||[];C.msgs=C.msgs||[];C.anns=C.anns||[];save();render();toast('✅ 备份已恢复')}catch(_){toast('❌ 文件格式错误')}};r.readAsText(f);e.target.value=''}
+
+// ===== 面板切换 =====
+function toggleAdmin(){const p=document.getElementById('adminPanel');const btn=document.getElementById('btnAdmin');const isOn=p.classList.toggle('on');btn.textContent=isOn?'👁️ 关闭管理':'⚙️ 管理空间';if(isOn)renderAdmin();window.scrollTo({top:0,behavior:'smooth'})}
+
+// ===== 照片上传 =====
+function initUpload(){const z=document.getElementById('upZone'),i=document.getElementById('upInput');z.addEventListener('click',()=>i.click());z.addEventListener('dragover',e=>{e.preventDefault()});z.addEventListener('drop',e=>{e.preventDefault();handleFiles(e.dataTransfer.files)});i.addEventListener('change',()=>{handleFiles(i.files);i.value=''})}
+function handleFiles(fs){if(!fs||!fs.length)return;let a=0;const ts=Array.from(fs).filter(f=>f.type.match(/^image\//)).map(f=>new Promise(r=>{const fr=new FileReader();fr.onload=e=>{if(!C.photos.includes(e.target.result)){C.photos.push(e.target.result);a++}r()};fr.readAsDataURL(f)}));Promise.all(ts).then(()=>{if(a){save();render();toast(`✅ 成功添加 ${a} 张`)}else toast('⚠️ 没有新照片')})}
+
+// ===== 颜色选择 =====
+function initColors(){document.querySelectorAll('.color-dots').forEach(g=>{g.addEventListener('click',e=>{const d=e.target.closest('.color-dot');if(!d)return;g.querySelectorAll('.color-dot').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');const hid=g.parentElement.querySelector('input[type=hidden]');if(hid)hid.value=d.dataset.c})})}
+
+// ===== 音乐 =====
+function toggleMusic(){const a=document.getElementById('bgm'),b=document.getElementById('btnPlay');if(!C.music)return toast('请先在管理面板设置音乐');if(a.paused){a.play().then(()=>b.textContent='⏸️').catch(()=>toast('浏览器阻止了自动播放'));b.textContent='⏸️'}else{a.pause();b.textContent='▶️'}}
+
+// ===== 灯箱 =====
+function openLb(orig,src){document.getElementById('lbImg').src=src;document.getElementById('lb').classList.add('on')}
+document.getElementById('lb').addEventListener('click',function(e){if(e.target===this||e.target.id==='lbX')this.classList.remove('on')});
+document.getElementById('lbX').addEventListener('click',function(){document.getElementById('lb').classList.remove('on')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lb').classList.remove('on')});
+
+// ===== 心愿 =====
+function initHearts(){const h=['❤️','💕','💗','💖','💘','💝','💓','💞','🩷','💌'];const ct=document.getElementById('hearts');function mk(){const s=document.createElement('span');s.className='heart';s.textContent=h[Math.floor(Math.random()*h.length)];s.style.left=Math.random()*100+'%';s.style.fontSize=(Math.random()*20+16)+'px';s.style.animationDuration=(Math.random()*6+8)+'s';s.style.animationDelay=Math.random()*5+'s';ct.appendChild(s);const d=parseFloat(s.style.animationDuration)+parseFloat(s.style.animationDelay);setTimeout(()=>s.remove(),d*1000+500)}for(let i=0;i<12;i++)setTimeout(mk,Math.random()*3000);setInterval(mk,2000)}
+
+// ===== 工具 =====
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2500)}
+function pad(n){return String(n).padStart(2,'0')}
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function ea(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function light(h){const n=parseInt(h.replace('#',''),16);const r=Math.min(255,(n>>16)+40),g=Math.min(255,((n>>8)&0xFF)+40),b=Math.min(255,(n&0xFF)+40);return'#'+(0x1000000+(r<<16)+(g<<8)+b).toString(16).slice(1)}
+function dark(h){const n=parseInt(h.replace('#',''),16);const r=Math.max(0,(n>>16)-40),g=Math.max(0,((n>>8)&0xFF)-40),b=Math.max(0,(n&0xFF)-40);return'#'+(0x1000000+(r<<16)+(g<<8)+b).toString(16).slice(1)}
+
+// ===== 启动 =====
+load();render();initHearts();initUpload();initColors();
 </script>
 </body>
 </html>
